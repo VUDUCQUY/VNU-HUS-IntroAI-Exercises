@@ -50,9 +50,7 @@ Văn phong tự nhiên, câu từ mạch lạc, ít lỗi ngữ pháp.
 Có thể duy trì hội thoại mượt, đôi khi chèn thêm chi tiết “giả” để tạo cảm giác giống người.
 Tuy nhiên, khi bị hỏi về trải nghiệm cá nhân (ký ức, cảm xúc thật), dễ lộ vì trả lời chung chung, thiếu chi tiết cụ thể.
 → Mức độ giống con người: cao trong hội thoại thông tin, thấp trong hội thoại đời thực.
-
 Bard (Gemini):
-
 Trả lời chậm hơn, văn phong đơn giản, ít “mượt” hơn ChatGPT.
 Giữ được logic nhưng ít sáng tạo hơn, dễ bị lộ “máy móc” khi đối thoại dài.
 → Mức độ giống con người: trung bình, dễ nhận ra không phải người thật.
@@ -65,3 +63,4 @@ Nghiên cứu Stanford HAI (2023): ChatGPT có thể “đánh lừa” một s�
 Nghiên cứu tại UC San Diego (2023): GPT-4 có khả năng thuyết phục hơn GPT-3 trong các đoạn hội thoại thông tin, nhưng vẫn không thể duy trì “giả làm người” trong hội thoại dài.
 Bài báo từ Nature Machine Intelligence (2023): khẳng định LLMs hiện nay chưa thật sự “pass” Turing Test, nhưng có thể đánh lừa trong những tình huống hẹp (ví dụ: chat tư vấn, trả lời nhanh về kiến thức).
  Như vậy, cả ChatGPT và Bard đều chưa vượt qua Turing Test ở mức tổng quát, nhưng chúng cho thấy mức độ giống con người đáng kể trong ngữ cảnh hạn chế.
+
