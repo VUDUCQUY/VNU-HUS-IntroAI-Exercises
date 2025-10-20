@@ -1,0 +1,142 @@
+a) Program breadth-first search, depth-first search, and iterative deepening in the language of your choice and test them on the 8-puzzle example.
+# Code by Python
+from collections import deque
+
+# ---- Định nghĩa trạng thái ----
+goal_state = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+
+# Các hướng di chuyển có thể (trái, phải, lên, xuống)
+moves = {
+    'U': -3,  # lên
+    'D': 3,   # xuống
+    'L': -1,  # trái
+    'R': 1    # phải
+}
+
+def get_neighbors(state):
+    """Trả về các trạng thái con có thể từ state"""
+    neighbors = []
+    zero_index = state.index(0)
+
+    for move, pos_change in moves.items():
+        new_index = zero_index + pos_change
+
+        # Kiểm tra hợp lệ
+        if move == 'L' and zero_index % 3 == 0:
+            continue
+        if move == 'R' and zero_index % 3 == 2:
+            continue
+        if new_index < 0 or new_index > 8:
+            continue
+
+        # Tạo trạng thái mới
+        new_state = list(state)
+        new_state[zero_index], new_state[new_index] = new_state[new_index], new_state[zero_index]
+        neighbors.append(tuple(new_state))
+    return neighbors
+
+def bfs(start):
+    visited = set()
+    queue = deque([(start, [])])  # (trạng thái, đường đi)
+
+    while queue:
+        state, path = queue.popleft()
+        if state == goal_state:
+            return path
+
+        visited.add(state)
+
+        for neighbor in get_neighbors(state):
+            if neighbor not in visited:
+                queue.append((neighbor, path + [neighbor]))
+
+    return None
+
+def dfs(start, depth_limit=20):
+    stack = [(start, [])]
+    visited = set()
+
+    while stack:
+        state, path = stack.pop()
+
+        if state == goal_state:
+            return path
+
+        if len(path) >= depth_limit:
+            continue
+
+        visited.add(state)
+
+        for neighbor in get_neighbors(state):
+            if neighbor not in visited:
+                stack.append((neighbor, path + [neighbor]))
+
+    return None
+
+def dls(state, path, depth_limit, visited):
+    """Hàm con: Depth-Limited Search"""
+    if state == goal_state:
+        return path
+    if depth_limit == 0:
+        return None
+
+    visited.add(state)
+
+    for neighbor in get_neighbors(state):
+        if neighbor not in visited:
+            result = dls(neighbor, path + [neighbor], depth_limit - 1, visited)
+            if result is not None:
+                return result
+    return None
+
+
+def ids(start):
+    depth = 0
+    while True:
+        visited = set()
+        result = dls(start, [], depth, visited)
+        if result is not None:
+            return result
+        depth += 1
+
+if _name_ == "_main_":
+    start_state = (1, 2, 3, 4, 0, 6, 7, 5, 8)
+
+    print("BFS đang chạy...")
+    path_bfs = bfs(start_state)
+    print("Số bước BFS:", len(path_bfs) if path_bfs else "Không tìm thấy")
+
+    print("\nDFS đang chạy...")
+    path_dfs = dfs(start_state, depth_limit=20)
+    print("Số bước DFS:", len(path_dfs) if path_dfs else "Không tìm thấy")
+
+    print("\nIDS đang chạy...")
+    path_ids = ids(start_state)
+    print("Số bước IDS:", len(path_ids) if path_ids else "Không tìm thấy")
+
+b) Why does it make little sense to use depth-first search on the 8-puzzle?
+Trả lời: Việc dùng Depth-First Search (DFS) cho bài toán 8-puzzle là không hợp lý vì DFS không phù hợp với không gian trạng thái lớn và có nhiều nhánh, như trong bài toán này.
+
+1. Không gian trạng thái của 8-puzzle là cực lớn
+  - Bài toán 8-puzzle có 9! = 362,880 trạng thái khác nhau.
+  - Khi dùng DFS, thuật toán sẽ đi sâu vào một nhánh duy nhất trước khi quay lại.
+  - Điều này khiến DFS có thể đi lạc sâu trong không gian tìm kiếm, mở rộng rất nhiều trạng thái không cần thiết, mà vẫn chưa đến được lời giải.
+2. DFS có thể rơi vào vòng lặp
+  - Vì mỗi trạng thái có thể sinh ra các trạng thái đã từng xuất hiện trước đó, nếu không kiểm tra kỹ (visited set) thì DFS sẽ quay lại trạng thái cũ vô hạn → chương trình không bao giờ dừng.
+  - Mặc dù có thể dùng tập visited, nhưng do DFS đi sâu, tập này rất lớn và hao tốn bộ nhớ.
+3. DFS không đảm bảo tìm được lời giải ngắn nhất
+  - Trong 8-puzzle, độ sâu của lời giải thường từ 10–30 bước.
+  - DFS có thể tìm thấy một lời giải rất sâu và không tối ưu trước, vì nó không mở rộng theo lớp như BFS.
+  → Nghĩa là có thể tìm thấy một lời giải dài hàng trăm bước, trong khi lời giải tối ưu chỉ dài 20 bước.
+4. DFS không phù hợp với bài toán có nhiều nhánh và lời giải nằm sâu
+  - Mỗi trạng thái của 8-puzzle có thể sinh ra 2–4 trạng thái con, nên cây tìm kiếm phình to rất nhanh theo độ sâu.
+  - DFS mở rộng theo chiều sâu nên:
+    + Dễ chết trong nhánh sâu vô ích.
+    + Không có chiến lược quay lui hiệu quả như IDS.
+
+Kết luận:
+  Dùng Depth-First Search cho 8-puzzle là không hợp lý vì:
+   1. Không gian trạng thái lớn → dễ đi lạc, tốn thời gian.
+   2. Có thể rơi vào vòng lặp.
+   3. Không đảm bảo tìm lời giải ngắn nhất.
+   4. Không hiệu quả về mặt thực tế (bộ nhớ, thời gian).
