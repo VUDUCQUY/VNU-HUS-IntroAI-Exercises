@@ -1,0 +1,108 @@
+Program A* search in the programming language of your choice using the heuristics h1 and h2 and test these on the 8-puzzle example.
+# Code by Python
+
+import heapq
+
+# Trạng thái đích
+goal_state = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+
+# Các di chuyển hợp lệ
+moves = {
+    'U': -3,  # lên
+    'D': 3,   # xuống
+    'L': -1,  # trái
+    'R': 1    # phải
+}
+
+# --- HÀM SINH TRẠNG THÁI KẾ ---
+def get_neighbors(state):
+    neighbors = []
+    zero_index = state.index(0)
+
+    for move, pos_change in moves.items():
+        new_index = zero_index + pos_change
+
+        # Kiểm tra biên
+        if move == 'L' and zero_index % 3 == 0:
+            continue
+        if move == 'R' and zero_index % 3 == 2:
+            continue
+        if new_index < 0 or new_index > 8:
+            continue
+
+        new_state = list(state)
+        new_state[zero_index], new_state[new_index] = new_state[new_index], new_state[zero_index]
+        neighbors.append(tuple(new_state))
+    return neighbors
+
+
+# --- H1: số ô sai vị trí ---
+def h1(state):
+    return sum(1 for i in range(9) if state[i] != 0 and state[i] != goal_state[i])
+
+
+# --- H2: tổng khoảng cách Manhattan ---
+def h2(state):
+    distance = 0
+    for i, value in enumerate(state):
+        if value == 0:
+            continue
+        goal_index = goal_state.index(value)
+        x1, y1 = divmod(i, 3)
+        x2, y2 = divmod(goal_index, 3)
+        distance += abs(x1 - x2) + abs(y1 - y2)
+    return distance
+
+
+# --- THUẬT TOÁN A* ---
+def a_star(start, heuristic):
+    frontier = []
+    heapq.heappush(frontier, (0, start))
+    came_from = {start: None}
+    cost_so_far = {start: 0}
+
+    while frontier:
+        _, current = heapq.heappop(frontier)
+
+        if current == goal_state:
+            # Truy ngược đường đi
+            path = []
+            while current:
+                path.append(current)
+                current = came_from[current]
+            path.reverse()
+            return path
+
+        for neighbor in get_neighbors(current):
+            new_cost = cost_so_far[current] + 1
+            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                cost_so_far[neighbor] = new_cost
+                priority = new_cost + heuristic(neighbor)
+                heapq.heappush(frontier, (priority, neighbor))
+                came_from[neighbor] = current
+
+    return None
+
+
+# --- HÀM HIỂN THỊ ---
+def print_board(state):
+    for i in range(0, 9, 3):
+        print(state[i:i+3])
+    print()
+
+
+# --- KIỂM THỬ ---
+if _name_ == "_main_":
+    start_state = (1, 2, 3, 4, 0, 6, 7, 5, 8)
+
+    print("=== A* với h1: số ô sai vị trí ===")
+    path1 = a_star(start_state, h1)
+    print("Số bước:", len(path1) - 1)
+    for s in path1:
+        print_board(s)
+
+    print("=== A* với h2: Manhattan distance ===")
+    path2 = a_star(start_state, h2)
+    print("Số bước:", len(path2) - 1)
+    for s in path2:
+        print_board(s)
